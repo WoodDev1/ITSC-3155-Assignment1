@@ -1,15 +1,43 @@
-type UserAccount = {};
+export type UserAccount = {
+  id: string;
+  createdAt: Date;
+  email: string;
+  passwordHash: string;
+  profile: {
+    bio: string;
+    avatarUrl: string;
+  };
+};
 
 export class UserRegistry {
+  private users: UserAccount[] = [];
+
   public registerUser(
     data: Omit<UserAccount, 'id' | 'createdAt'>,
   ): UserAccount {
-    return {};
+    const newUser: UserAccount = {
+      id: Math.random().toString(36).slice(2),
+      createdAt: new Date(),
+      ...data,
+    };
+
+    this.users.push(newUser);
+    return newUser;
   }
 
   public getUserView(
-    id: string,
-  ): Readonly<Pick<UserAccount, 'id' | 'email' | 'profile'>> | undefined {
+  id: string,
+): Readonly<Pick<UserAccount, 'id' | 'email' | 'profile'>> | undefined {
+  const user = this.users.find((u) => u.id === id);
+
+  if (!user) {
     return undefined;
   }
+
+  return Object.freeze({
+    id: user.id,
+    email: user.email,
+    profile: user.profile,
+  });
+}
 }
